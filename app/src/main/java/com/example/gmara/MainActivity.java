@@ -27,7 +27,7 @@ public class MainActivity extends AppCompatActivity {
     private PendingIntent pendingIntent;
     private AlarmManager manager;
 
-    private BroadcastReceiver onDownloadComplete = new BroadcastReceiver() {
+    public BroadcastReceiver onDownloadComplete = new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, Intent intent) {
             //Fetching the download id received with the broadcast
@@ -89,26 +89,12 @@ public class MainActivity extends AppCompatActivity {
         return super.onOptionsItemSelected(item);
     }
 
+    // Start when click on the button
     public void DownloadLastLesson(View view) {
-        beginDownload();
+        downloadID = LessonDownloadManager.beginDownload(this);
     }
 
-    private void beginDownload() {
-        File file = new File(getExternalFilesDir(null), "nida27.mp3");
-        /*
-        Create a DownloadManager.Request with all the information necessary to start the download
-         */
-        DownloadManager.Request request = new DownloadManager.Request(Uri.parse("https://files.daf-yomi.com/files/navon/navon-audio/nida/nida27.mp3"))
-                .setTitle("nida27.mp3")// Title of the Download Notification
-                .setDescription("Downloading")// Description of the Download Notification
-                .setNotificationVisibility(DownloadManager.Request.VISIBILITY_VISIBLE)// Visibility of the download Notification
-                .setDestinationUri(Uri.fromFile(file))// Uri of the destination file
-                .setRequiresCharging(false)// Set if charging is required to begin the download
-                .setAllowedOverMetered(true)// Set if download is allowed on Mobile network
-                .setAllowedOverRoaming(true);// Set if download is allowed on roaming network
-        DownloadManager downloadManager = (DownloadManager) getSystemService(DOWNLOAD_SERVICE);
-        downloadID = downloadManager.enqueue(request);// enqueue puts the download request in the queue.
-    }
+
 
 
 }
