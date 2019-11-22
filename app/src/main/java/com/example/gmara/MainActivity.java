@@ -7,7 +7,6 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
-import android.net.Uri;
 import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -20,10 +19,8 @@ import androidx.appcompat.widget.Toolbar;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.snackbar.Snackbar;
 
-import java.io.File;
-
 public class MainActivity extends AppCompatActivity {
-    private long downloadID;
+    public static long downloadID;
     private PendingIntent pendingIntent;
     private AlarmManager manager;
 
@@ -91,7 +88,7 @@ public class MainActivity extends AppCompatActivity {
 
     // Start when click on the button
     public void DownloadLastLesson(View view) {
-        downloadID = LessonDownloadManager.beginDownload(this);
+        LessonDownloadManager.DownloadLessson(this);
     }
 
 
