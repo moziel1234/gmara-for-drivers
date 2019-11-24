@@ -17,6 +17,8 @@ import org.json.JSONObject;
 
 import java.io.File;
 import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Date;
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -95,17 +97,33 @@ public class LessonDownloadManager {
     public static void handleDownload(Context context, String url) {
         String[] arr = url.split("/");
         String nameOfFile = arr[arr.length - 1];
-        File file = new File(context.getExternalFilesDir(null), nameOfFile);
-        DownloadManager.Request request = new DownloadManager.Request(Uri.parse(url))
-                .setTitle(nameOfFile)// Title of the Download Notification
-                .setDescription("Downloading")// Description of the Download Notification
-                .setNotificationVisibility(DownloadManager.Request.VISIBILITY_VISIBLE)// Visibility of the download Notification
-                .setDestinationUri(Uri.fromFile(file))// Uri of the destination file
-                .setRequiresCharging(false)// Set if charging is required to begin the download
-                .setAllowedOverMetered(true)// Set if download is allowed on Mobile network
-                .setAllowedOverRoaming(true);// Set if download is allowed on roaming network
-        DownloadManager downloadManager = (DownloadManager) context.getSystemService(DOWNLOAD_SERVICE);
-        MainActivity.downloadID = downloadManager.enqueue(request);// enqueue puts the download request in the queue.
+        if (new File(context.getExternalFilesDir("") + "/" + nameOfFile).exists() == false) {
+            File file = new File(context.getExternalFilesDir(null), nameOfFile);
+            DownloadManager.Request request = new DownloadManager.Request(Uri.parse(url))
+                    .setTitle(nameOfFile)// Title of the Download Notification
+                    .setDescription("Downloading")// Description of the Download Notification
+                    .setNotificationVisibility(DownloadManager.Request.VISIBILITY_VISIBLE)// Visibility of the download Notification
+                    .setDestinationUri(Uri.fromFile(file))// Uri of the destination file
+                    .setRequiresCharging(false)// Set if charging is required to begin the download
+                    .setAllowedOverMetered(true)// Set if download is allowed on Mobile network
+                    .setAllowedOverRoaming(true);// Set if download is allowed on roaming network
+            DownloadManager downloadManager = (DownloadManager) context.getSystemService(DOWNLOAD_SERVICE);
+            MainActivity.downloadID = downloadManager.enqueue(request);// enqueue puts the download request in the queue.
+        }
 
     }
+
+    public static void DeleteOldFile(Context context){
+        Calendar time = Calendar.getInstance();
+        time.add(Calendar.DAY_OF_YEAR,-7); //week
+        File[] filesList = context.getExternalFilesDir("").listFiles();
+        for (File file : filesList) {
+            Date lastModified = new Date(file.lastModified());
+            if(lastModified.before(time.getTime())) {
+                //file is older than a week
+                file.delete();
+            }
+        }
+    }
+
 }
