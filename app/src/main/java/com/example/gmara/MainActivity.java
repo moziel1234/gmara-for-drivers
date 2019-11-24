@@ -7,23 +7,28 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
-
+import android.media.MediaPlayer;
 import java.io.File;
 import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
+
+import java.io.FileFilter;
 import java.util.Calendar;
 
 public class MainActivity extends AppCompatActivity {
     public static long downloadID;
     private PendingIntent pendingIntent;
-    Button btnGetFiles;
+    private File lastModifiedFile;
+    private MediaPlayer mediaPlayer;
+    private boolean doPlay = false;
 
     public BroadcastReceiver onDownloadComplete = new BroadcastReceiver() {
         @Override
@@ -41,6 +46,8 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
+        // Init
         registerReceiver(onDownloadComplete, new IntentFilter(DownloadManager.ACTION_DOWNLOAD_COMPLETE));
 
         setContentView(R.layout.activity_main);
@@ -49,8 +56,11 @@ public class MainActivity extends AppCompatActivity {
 
         Calendar midnightCalendar = Calendar.getInstance();
         midnightCalendar.setTimeInMillis(System.currentTimeMillis());
+        mediaPlayer = new MediaPlayer();
+        final Button btnPlayPause = (Button)findViewById(R.id.btnPlayPause);
 
-        //set the time to each 2 AM
+
+        // Set Download time to 2 AM
         midnightCalendar.set(Calendar.HOUR_OF_DAY, 2);
         midnightCalendar.set(Calendar.MINUTE, 0);
         midnightCalendar.set(Calendar.SECOND, 0);
@@ -61,10 +71,57 @@ public class MainActivity extends AppCompatActivity {
         alarmManager.setRepeating(AlarmManager.RTC_WAKEUP, midnightCalendar.getTimeInMillis(),
                 1000 * 60 * 60 * 24, pendingIntent);
 
-        File[] filesList = this.getExternalFilesDir("").listFiles();
+        // Init player with last file
+        lastModifiedFile = lastFileModified();
+        TextView playLabel = (TextView)findViewById(R.id.textViewPlayFile);
+        String[] arr = lastModifiedFile.toString().split("/");
+        String nameOfFile = arr[arr.length - 1];
+        playLabel.setText(nameOfFile);
+        try {
+            mediaPlayer.setDataSource(lastModifiedFile.toString());
+            mediaPlayer.prepare();
+        } catch (Exception e)  {
+            // TODO: handle error
+        }
+
+        btnPlayPause.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if (!doPlay) {
+                    btnPlayPause.setText("||");
+                    Toast.makeText(getApplicationContext(), "Playing sound", Toast.LENGTH_SHORT).show();
+                    mediaPlayer.start();
+                    doPlay = true;
+                }
+                else {
+                    btnPlayPause.setText(">");
+                    Toast.makeText(getApplicationContext(), "Pause sound", Toast.LENGTH_SHORT).show();
+                    mediaPlayer.pause();
+                    doPlay = false;
+                }
+            }
+        });
+
 
     }
 
+    public File lastFileModified() {
+        File fl = new File(MainActivity.this.getExternalFilesDir("").toString());
+        File[] files = fl.listFiles(new FileFilter() {
+            public boolean accept(File file) {
+                return file.isFile();
+            }
+        });
+        long lastMod = Long.MIN_VALUE;
+        File choice = null;
+        for (File file : files) {
+            if (file.lastModified() > lastMod) {
+                choice = file;
+                lastMod = file.lastModified();
+            }
+        }
+        return choice;
+    }
 
 
     @Override

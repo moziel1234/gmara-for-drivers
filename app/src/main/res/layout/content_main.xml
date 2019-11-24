@@ -69,7 +69,7 @@
         app:layout_constraintVertical_bias="0.0" />
 
     <TextView
-        android:id="@+id/textView"
+        android:id="@+id/textViewPlayFile"
         android:layout_width="348dp"
         android:layout_height="65dp"
         android:layout_marginTop="64dp"
