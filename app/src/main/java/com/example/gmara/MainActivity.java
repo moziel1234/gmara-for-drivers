@@ -24,6 +24,7 @@ import androidx.appcompat.widget.Toolbar;
 
 import java.io.FileFilter;
 import java.util.Calendar;
+import java.util.concurrent.TimeUnit;
 
 public class MainActivity extends AppCompatActivity {
     public static long downloadID;
@@ -40,6 +41,7 @@ public class MainActivity extends AppCompatActivity {
     public static int oneTimeOnly = 0;
     private Handler myHandler = new Handler();
     private SeekBar seekbar;
+    private TextView leftTime, rightTime;
 
     public BroadcastReceiver onDownloadComplete = new BroadcastReceiver() {
         @Override
@@ -71,6 +73,8 @@ public class MainActivity extends AppCompatActivity {
         final Button btnPlayPause = (Button)findViewById(R.id.btnPlayPause);
         final Button btnForward = (Button)findViewById(R.id.btnForward);
         final Button btnBack = (Button)findViewById(R.id.btnBack);
+        leftTime = (TextView)findViewById(R.id.textViewLest);
+        rightTime = (TextView)findViewById(R.id.textViewRight);
         seekbar = (SeekBar)findViewById(R.id.seekBar);
 
         // Set Download time to 2 AM
@@ -147,6 +151,20 @@ public class MainActivity extends AppCompatActivity {
 
                     seekbar.setProgress((int)startTime);
                     myHandler.postDelayed(UpdateSongTime,100);
+
+                    rightTime.setText(String.format("%d min, %d sec",
+                            TimeUnit.MILLISECONDS.toMinutes((long) finalTime),
+                            TimeUnit.MILLISECONDS.toSeconds((long) finalTime) -
+                                    TimeUnit.MINUTES.toSeconds(TimeUnit.MILLISECONDS.toMinutes((long)
+                                            finalTime)))
+                    );
+
+                    leftTime.setText(String.format("%d min, %d sec",
+                            TimeUnit.MILLISECONDS.toMinutes((long) startTime),
+                            TimeUnit.MILLISECONDS.toSeconds((long) startTime) -
+                                    TimeUnit.MINUTES.toSeconds(TimeUnit.MILLISECONDS.toMinutes((long)
+                                            startTime)))
+                    );
                 }
                 else {
                     btnPlayPause.setText(">");
@@ -163,15 +181,15 @@ public class MainActivity extends AppCompatActivity {
     private Runnable UpdateSongTime = new Runnable() {
         public void run() {
             startTime = mediaPlayer.getCurrentPosition();
-            /*
-            tx1.setText(String.format("%d min, %d sec",
+
+            rightTime,.setText(String.format("%d min, %d sec",
                     TimeUnit.MILLISECONDS.toMinutes((long) startTime),
                     TimeUnit.MILLISECONDS.toSeconds((long) startTime) -
                             TimeUnit.MINUTES.toSeconds(TimeUnit.MILLISECONDS.
                                     toMinutes((long) startTime)))
             );
 
-             */
+
             seekbar.setProgress((int)startTime);
             myHandler.postDelayed(this, 100);
         }
