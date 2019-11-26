@@ -10,10 +10,12 @@ import android.content.IntentFilter;
 import android.media.MediaPlayer;
 import java.io.File;
 import android.os.Bundle;
+import android.os.Handler;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
+import android.widget.SeekBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -29,6 +31,15 @@ public class MainActivity extends AppCompatActivity {
     private File lastModifiedFile;
     private MediaPlayer mediaPlayer;
     private boolean doPlay = false;
+
+    private int forwardTime = 30 * 1000;
+    private int backwardTime = 30 * 1000;
+    private double startTime = 0;
+    private double finalTime = 0;
+
+    public static int oneTimeOnly = 0;
+    private Handler myHandler = new Handler();
+    private SeekBar seekbar;
 
     public BroadcastReceiver onDownloadComplete = new BroadcastReceiver() {
         @Override
@@ -58,7 +69,9 @@ public class MainActivity extends AppCompatActivity {
         midnightCalendar.setTimeInMillis(System.currentTimeMillis());
         mediaPlayer = new MediaPlayer();
         final Button btnPlayPause = (Button)findViewById(R.id.btnPlayPause);
-
+        final Button btnForward = (Button)findViewById(R.id.btnForward);
+        final Button btnBack = (Button)findViewById(R.id.btnBack);
+        seekbar = (SeekBar)findViewById(R.id.seekBar);
 
         // Set Download time to 2 AM
         midnightCalendar.set(Calendar.HOUR_OF_DAY, 2);
@@ -84,6 +97,38 @@ public class MainActivity extends AppCompatActivity {
             // TODO: handle error
         }
 
+        seekbar.setClickable(false);
+
+        btnForward.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                int temp = (int)startTime;
+
+                if((temp+forwardTime)<=finalTime){
+                    startTime = startTime + forwardTime;
+                    mediaPlayer.seekTo((int) startTime);
+                    Toast.makeText(getApplicationContext(),"You have Jumped forward 30 seconds",Toast.LENGTH_SHORT).show();
+                }else{
+                    Toast.makeText(getApplicationContext(),"Cannot jump forward 30 seconds",Toast.LENGTH_SHORT).show();
+                }
+            }
+        });
+
+        btnBack.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                int temp = (int)startTime;
+
+                if((temp-backwardTime)>0){
+                    startTime = startTime - backwardTime;
+                    mediaPlayer.seekTo((int) startTime);
+                    Toast.makeText(getApplicationContext(),"You have Jumped backward 30 seconds",Toast.LENGTH_SHORT).show();
+                }else{
+                    Toast.makeText(getApplicationContext(),"Cannot jump backward 30seconds",Toast.LENGTH_SHORT).show();
+                }
+            }
+        });
+
         btnPlayPause.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -92,6 +137,16 @@ public class MainActivity extends AppCompatActivity {
                     Toast.makeText(getApplicationContext(), "Playing sound", Toast.LENGTH_SHORT).show();
                     mediaPlayer.start();
                     doPlay = true;
+                    finalTime = mediaPlayer.getDuration();
+                    startTime = mediaPlayer.getCurrentPosition();
+
+                    if (oneTimeOnly == 0) {
+                        seekbar.setMax((int) finalTime);
+                        oneTimeOnly = 1;
+                    }
+
+                    seekbar.setProgress((int)startTime);
+                    myHandler.postDelayed(UpdateSongTime,100);
                 }
                 else {
                     btnPlayPause.setText(">");
@@ -104,6 +159,23 @@ public class MainActivity extends AppCompatActivity {
 
 
     }
+
+    private Runnable UpdateSongTime = new Runnable() {
+        public void run() {
+            startTime = mediaPlayer.getCurrentPosition();
+            /*
+            tx1.setText(String.format("%d min, %d sec",
+                    TimeUnit.MILLISECONDS.toMinutes((long) startTime),
+                    TimeUnit.MILLISECONDS.toSeconds((long) startTime) -
+                            TimeUnit.MINUTES.toSeconds(TimeUnit.MILLISECONDS.
+                                    toMinutes((long) startTime)))
+            );
+
+             */
+            seekbar.setProgress((int)startTime);
+            myHandler.postDelayed(this, 100);
+        }
+    };
 
     public File lastFileModified() {
         File fl = new File(MainActivity.this.getExternalFilesDir("").toString());
