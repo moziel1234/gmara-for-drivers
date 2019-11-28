@@ -152,18 +152,18 @@ public class MainActivity extends AppCompatActivity {
                     seekbar.setProgress((int)startTime);
                     myHandler.postDelayed(UpdateSongTime,100);
 
-                    rightTime.setText(String.format("%d min, %d sec",
-                            TimeUnit.MILLISECONDS.toMinutes((long) finalTime),
-                            TimeUnit.MILLISECONDS.toSeconds((long) finalTime) -
+                    leftTime.setText(String.format("%s:%s",
+                            minTwoDigits(TimeUnit.MILLISECONDS.toMinutes((long) finalTime)),
+                            minTwoDigits(TimeUnit.MILLISECONDS.toSeconds((long) finalTime) -
                                     TimeUnit.MINUTES.toSeconds(TimeUnit.MILLISECONDS.toMinutes((long)
-                                            finalTime)))
+                                            finalTime))))
                     );
 
-                    leftTime.setText(String.format("%d min, %d sec",
-                            TimeUnit.MILLISECONDS.toMinutes((long) startTime),
-                            TimeUnit.MILLISECONDS.toSeconds((long) startTime) -
+                    rightTime.setText(String.format("%s:%s",
+                            minTwoDigits(TimeUnit.MILLISECONDS.toMinutes((long) finalTime)),
+                            minTwoDigits(TimeUnit.MILLISECONDS.toSeconds((long) finalTime) -
                                     TimeUnit.MINUTES.toSeconds(TimeUnit.MILLISECONDS.toMinutes((long)
-                                            startTime)))
+                                            finalTime))))
                     );
                 }
                 else {
@@ -178,15 +178,24 @@ public class MainActivity extends AppCompatActivity {
 
     }
 
+    private String minTwoDigits(long n) {
+        if (n<10) {
+            return "0"+n;
+        }
+        else {
+            return ""+n;
+        }
+    }
+
     private Runnable UpdateSongTime = new Runnable() {
         public void run() {
             startTime = mediaPlayer.getCurrentPosition();
 
-            rightTime,.setText(String.format("%d min, %d sec",
-                    TimeUnit.MILLISECONDS.toMinutes((long) startTime),
-                    TimeUnit.MILLISECONDS.toSeconds((long) startTime) -
+            leftTime.setText(String.format("%s:%s",
+                    minTwoDigits(TimeUnit.MILLISECONDS.toMinutes((long) startTime)),
+                    minTwoDigits(TimeUnit.MILLISECONDS.toSeconds((long) startTime) -
                             TimeUnit.MINUTES.toSeconds(TimeUnit.MILLISECONDS.
-                                    toMinutes((long) startTime)))
+                                    toMinutes((long) startTime))))
             );
 
 
