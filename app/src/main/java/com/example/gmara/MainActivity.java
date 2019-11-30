@@ -7,6 +7,7 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.content.SharedPreferences;
 import android.media.MediaPlayer;
 import java.io.File;
 import android.os.Bundle;
@@ -42,6 +43,8 @@ public class MainActivity extends AppCompatActivity {
     private Handler myHandler = new Handler();
     private SeekBar seekbar;
     private TextView leftTime, rightTime;
+    private SharedPreferences mPrefs;
+    private String playedFile;
 
     public BroadcastReceiver onDownloadComplete = new BroadcastReceiver() {
         @Override
@@ -61,6 +64,7 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
 
         // Init
+        mPrefs = getSharedPreferences("Gmara", 0);
         registerReceiver(onDownloadComplete, new IntentFilter(DownloadManager.ACTION_DOWNLOAD_COMPLETE));
 
         setContentView(R.layout.activity_main);
@@ -92,14 +96,23 @@ public class MainActivity extends AppCompatActivity {
         lastModifiedFile = lastFileModified();
         TextView playLabel = (TextView)findViewById(R.id.textViewPlayFile);
         String[] arr = lastModifiedFile.toString().split("/");
-        String nameOfFile = arr[arr.length - 1];
-        playLabel.setText(nameOfFile);
+        playedFile = arr[arr.length - 1];
+        playLabel.setText(playedFile);
+
+        String lastPlayedFile = mPrefs.getString("playedFile", "NoSaved");
+
         try {
             mediaPlayer.setDataSource(lastModifiedFile.toString());
             mediaPlayer.prepare();
         } catch (Exception e)  {
             // TODO: handle error
         }
+
+        if (lastPlayedFile.equals(playedFile)) {
+            String lastPlayedTime = mPrefs.getString("currentPlayedTime", "0");
+            mediaPlayer.seekTo(Integer.parseInt(lastPlayedTime));
+        }
+
 
         seekbar.setClickable(false);
 
@@ -171,6 +184,7 @@ public class MainActivity extends AppCompatActivity {
                     Toast.makeText(getApplicationContext(), "Pause sound", Toast.LENGTH_SHORT).show();
                     mediaPlayer.pause();
                     doPlay = false;
+                    CommitToPrefs();
                 }
             }
         });
@@ -227,6 +241,17 @@ public class MainActivity extends AppCompatActivity {
     public void onDestroy() {
         super.onDestroy();
         unregisterReceiver(onDownloadComplete);
+        CommitToPrefs();
+
+    }
+
+    private void CommitToPrefs() {
+        long currentPlayedTime = TimeUnit.MILLISECONDS.toMillis((long) startTime);
+        if (currentPlayedTime > 0) {
+            SharedPreferences.Editor mEditor = mPrefs.edit();
+            mEditor.putString("currentPlayedTime", "" + currentPlayedTime).commit();
+            mEditor.putString("playedFile", playedFile).commit();
+        }
     }
 
 
