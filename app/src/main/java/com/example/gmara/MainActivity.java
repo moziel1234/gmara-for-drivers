@@ -125,9 +125,9 @@ public class MainActivity extends AppCompatActivity {
                 if((temp+forwardTime)<=finalTime){
                     startTime = startTime + forwardTime;
                     mediaPlayer.seekTo((int) startTime);
-                    Toast.makeText(getApplicationContext(),"You have Jumped forward 30 seconds",Toast.LENGTH_SHORT).show();
+                    // Toast.makeText(getApplicationContext(),"You have Jumped forward 30 seconds",Toast.LENGTH_SHORT).show();
                 }else{
-                    Toast.makeText(getApplicationContext(),"Cannot jump forward 30 seconds",Toast.LENGTH_SHORT).show();
+                    // Toast.makeText(getApplicationContext(),"Cannot jump forward 30 seconds",Toast.LENGTH_SHORT).show();
                 }
             }
         });
@@ -140,9 +140,9 @@ public class MainActivity extends AppCompatActivity {
                 if((temp-backwardTime)>0){
                     startTime = startTime - backwardTime;
                     mediaPlayer.seekTo((int) startTime);
-                    Toast.makeText(getApplicationContext(),"You have Jumped backward 30 seconds",Toast.LENGTH_SHORT).show();
+                    // Toast.makeText(getApplicationContext(),"You have Jumped backward 30 seconds",Toast.LENGTH_SHORT).show();
                 }else{
-                    Toast.makeText(getApplicationContext(),"Cannot jump backward 30seconds",Toast.LENGTH_SHORT).show();
+                    // Toast.makeText(getApplicationContext(),"Cannot jump backward 30seconds",Toast.LENGTH_SHORT).show();
                 }
             }
         });

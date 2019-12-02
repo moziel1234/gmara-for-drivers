@@ -1,0 +1,101 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    app:layout_behavior="@string/appbar_scrolling_view_behavior"
+    tools:context=".MainActivity"
+    tools:showIn="@layout/activity_main">
+
+    <Button
+        android:id="@+id/btnDownloadLastLesson"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="48dp"
+        android:onClick="DownloadLastLesson"
+        android:text="Dwonload Last Lesson"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.984"
+        app:layout_constraintStart_toEndOf="@+id/textViewPlayFile"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <ImageButton
+        android:id="@+id/btnPlayPause"
+        android:layout_width="214dp"
+        android:layout_height="208dp"
+        android:scaleType="fitCenter"
+        android:src="@drawable/play"
+        app:layout_constraintEnd_toStartOf="@+id/btnForward"
+        app:layout_constraintStart_toEndOf="@+id/btnBack"
+        app:layout_constraintTop_toTopOf="@+id/btnForward" />
+
+    <ImageButton
+        android:id="@+id/btnForward"
+        android:layout_width="217dp"
+        android:layout_height="206dp"
+        android:layout_marginTop="112dp"
+        android:layout_marginEnd="24dp"
+        android:scaleType="fitCenter"
+        android:src="@drawable/right"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <SeekBar
+        android:id="@+id/seekBar"
+        android:layout_width="220dp"
+        android:layout_height="46dp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toStartOf="@+id/textViewRight"
+        app:layout_constraintStart_toEndOf="@+id/textViewLest"
+        app:layout_constraintTop_toBottomOf="@+id/btnPlayPause" />
+
+    <TextView
+        android:id="@+id/textViewRight"
+        android:layout_width="124dp"
+        android:layout_height="94dp"
+        android:layout_marginEnd="48dp"
+        android:gravity="center"
+        android:text=""
+        android:textSize="22dp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toTopOf="@+id/textViewLest"
+        app:layout_constraintVertical_bias="0.0" />
+
+    <TextView
+        android:id="@+id/textViewLest"
+        android:layout_width="118dp"
+        android:layout_height="93dp"
+        android:layout_marginStart="56dp"
+        android:gravity="center"
+        android:text=""
+        android:textSize="22dp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/btnBack"
+        app:layout_constraintVertical_bias="0.0" />
+
+    <ImageButton
+        android:id="@+id/btnBack"
+        android:layout_width="202dp"
+        android:layout_height="204dp"
+        android:scaleType="fitCenter"
+        android:src="@drawable/left"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="@+id/btnPlayPause" />
+
+    <TextView
+        android:id="@+id/textViewPlayFile"
+        android:layout_width="348dp"
+        android:layout_height="65dp"
+        android:layout_marginStart="188dp"
+        android:layout_marginTop="48dp"
+        android:gravity="center"
+        android:text="NO FILES TO PLAY"
+        android:textSize="22dp"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+
+</androidx.constraintlayout.widget.ConstraintLayout>
