@@ -14,98 +14,88 @@
         android:layout_height="wrap_content"
         android:onClick="DownloadLastLesson"
         android:text="Dwonload Last Lesson"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintHorizontal_bias="0.444"
-        app:layout_constraintLeft_toLeftOf="parent"
-        app:layout_constraintRight_toRightOf="parent"
+        app:layout_constraintBottom_toTopOf="@+id/textViewPlayFile"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="0.163" />
+        app:layout_constraintVertical_bias="0.905" />
 
-    <Button
+    <ImageButton
         android:id="@+id/btnPlayPause"
-        android:layout_width="351dp"
-        android:layout_height="98dp"
-        android:layout_marginTop="340dp"
-        android:text=">"
-        app:layout_constraintLeft_toLeftOf="parent"
-        app:layout_constraintRight_toRightOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
-
-    <Button
-        android:id="@+id/btnForward"
-        android:layout_width="170dp"
-        android:layout_height="117dp"
-        android:layout_marginTop="24dp"
-        android:text="Forward"
+        android:layout_width="123dp"
+        android:layout_height="109dp"
+        android:layout_marginEnd="8dp"
+        android:scaleType="fitCenter"
+        android:src="@drawable/play"
         app:layout_constraintBottom_toBottomOf="@+id/btnBack"
-        app:layout_constraintEnd_toEndOf="@+id/btnPlayPause"
-        app:layout_constraintHorizontal_bias="0.692"
-        app:layout_constraintStart_toEndOf="@+id/btnBack"
-        app:layout_constraintTop_toTopOf="@+id/btnBack"
-        app:layout_constraintVertical_bias="0.923" />
+        app:layout_constraintEnd_toStartOf="@+id/btnForward" />
+
+    <ImageButton
+        android:id="@+id/btnForward"
+        android:layout_width="136dp"
+        android:layout_height="108dp"
+        android:scaleType="fitCenter"
+        android:src="@drawable/right"
+        app:layout_constraintBottom_toBottomOf="@+id/btnPlayPause"
+        app:layout_constraintEnd_toEndOf="parent" />
 
     <SeekBar
         android:id="@+id/seekBar"
-        android:layout_width="187dp"
-        android:layout_height="36dp"
-        android:layout_marginTop="33dp"
+        android:layout_width="112dp"
+        android:layout_height="45dp"
+        android:layout_marginStart="9dp"
         app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="@+id/btnForward"
-        app:layout_constraintStart_toStartOf="@+id/btnBack"
-        app:layout_constraintTop_toBottomOf="@+id/btnBack"
-        app:layout_constraintVertical_bias="0.0" />
-
-    <Button
-        android:id="@+id/btnBack"
-        android:layout_width="162dp"
-        android:layout_height="115dp"
-        android:layout_marginTop="26dp"
-        android:text="Back"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.013"
-        app:layout_constraintStart_toStartOf="@+id/btnPlayPause"
+        app:layout_constraintEnd_toStartOf="@+id/textViewRight"
+        app:layout_constraintHorizontal_bias="0.354"
+        app:layout_constraintStart_toEndOf="@+id/textViewLest"
         app:layout_constraintTop_toBottomOf="@+id/btnPlayPause"
-        app:layout_constraintVertical_bias="0.0" />
+        app:layout_constraintVertical_bias="0.519" />
+
+    <TextView
+        android:id="@+id/textViewRight"
+        android:layout_width="124dp"
+        android:layout_height="94dp"
+        android:gravity="center"
+        android:text=""
+        android:textSize="22dp"
+        app:layout_constraintBottom_toBottomOf="@+id/textViewLest"
+        app:layout_constraintEnd_toEndOf="parent" />
+
+    <TextView
+        android:id="@+id/textViewLest"
+        android:layout_width="118dp"
+        android:layout_height="93dp"
+        android:gravity="center"
+        android:text=""
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        android:textSize="22dp"
+        app:layout_constraintTop_toBottomOf="@+id/btnBack" />
+
+    <ImageButton
+        android:id="@+id/btnBack"
+        android:layout_width="132dp"
+        android:layout_height="110dp"
+        android:layout_marginTop="424dp"
+        android:scaleType="fitCenter"
+        android:src="@drawable/left"
+        app:layout_constraintEnd_toStartOf="@+id/btnPlayPause"
+        app:layout_constraintHorizontal_bias="0.0"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
 
     <TextView
         android:id="@+id/textViewPlayFile"
         android:layout_width="348dp"
         android:layout_height="65dp"
-        android:layout_marginTop="64dp"
+        android:layout_marginTop="344dp"
         android:gravity="center"
         android:text="NO FILES TO PLAY"
         android:textSize="22dp"
-        app:layout_constraintBottom_toTopOf="@+id/btnPlayPause"
-        app:layout_constraintEnd_toEndOf="@+id/btnPlayPause"
-        app:layout_constraintStart_toStartOf="@+id/btnPlayPause"
-        app:layout_constraintTop_toBottomOf="@+id/btnDownloadLastLesson" />
-
-    <TextView
-        android:id="@+id/textViewLest"
-        android:layout_width="92dp"
-        android:layout_height="39dp"
-        android:text=""
-        android:gravity="center"
-        app:layout_constraintBottom_toBottomOf="@+id/seekBar"
-        app:layout_constraintEnd_toStartOf="@+id/seekBar"
-        app:layout_constraintHorizontal_bias="1.0"
-        app:layout_constraintStart_toStartOf="@+id/btnBack"
-        app:layout_constraintTop_toTopOf="@+id/seekBar"
-        app:layout_constraintVertical_bias="1.0" />
-
-    <TextView
-        android:id="@+id/textViewRight"
-        android:layout_width="74dp"
-        android:layout_height="35dp"
-        android:text=""
-        android:gravity="center"
-        app:layout_constraintBottom_toBottomOf="@+id/seekBar"
-        app:layout_constraintEnd_toEndOf="@+id/btnForward"
-        app:layout_constraintHorizontal_bias="1.0"
-        app:layout_constraintStart_toEndOf="@+id/seekBar"
-        app:layout_constraintTop_toTopOf="@+id/seekBar"
-        app:layout_constraintVertical_bias="0.0" />
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.492"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
 
 
 </androidx.constraintlayout.widget.ConstraintLayout>

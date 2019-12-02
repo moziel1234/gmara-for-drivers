@@ -16,6 +16,7 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
+import android.widget.ImageButton;
 import android.widget.SeekBar;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -74,9 +75,9 @@ public class MainActivity extends AppCompatActivity {
         Calendar midnightCalendar = Calendar.getInstance();
         midnightCalendar.setTimeInMillis(System.currentTimeMillis());
         mediaPlayer = new MediaPlayer();
-        final Button btnPlayPause = (Button)findViewById(R.id.btnPlayPause);
-        final Button btnForward = (Button)findViewById(R.id.btnForward);
-        final Button btnBack = (Button)findViewById(R.id.btnBack);
+        final ImageButton btnPlayPause = (ImageButton)findViewById(R.id.btnPlayPause);
+        final ImageButton btnForward = (ImageButton)findViewById(R.id.btnForward);
+        final ImageButton btnBack = (ImageButton)findViewById(R.id.btnBack);
         leftTime = (TextView)findViewById(R.id.textViewLest);
         rightTime = (TextView)findViewById(R.id.textViewRight);
         seekbar = (SeekBar)findViewById(R.id.seekBar);
@@ -150,7 +151,7 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 if (!doPlay) {
-                    btnPlayPause.setText("||");
+                    btnPlayPause.setImageResource(R.drawable.pause);
                     Toast.makeText(getApplicationContext(), "Playing sound", Toast.LENGTH_SHORT).show();
                     mediaPlayer.start();
                     doPlay = true;
@@ -180,7 +181,7 @@ public class MainActivity extends AppCompatActivity {
                     );
                 }
                 else {
-                    btnPlayPause.setText(">");
+                    btnPlayPause.setImageResource(R.drawable.play);
                     Toast.makeText(getApplicationContext(), "Pause sound", Toast.LENGTH_SHORT).show();
                     mediaPlayer.pause();
                     doPlay = false;
