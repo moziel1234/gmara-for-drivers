@@ -61,6 +61,15 @@ public class MainActivity extends AppCompatActivity {
 
 
     @Override
+    public void onSaveInstanceState(Bundle outState) {
+        outState.putString("leftTime", leftTime.getText().toString());
+        outState.putString("rightTime", rightTime.getText().toString());
+        outState.putString("duration", mediaPlayer.getDuration()+"");
+        outState.putString("doPlay", Boolean.toString(doPlay));
+        super.onSaveInstanceState(outState);
+    }
+
+    @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
@@ -74,13 +83,18 @@ public class MainActivity extends AppCompatActivity {
 
         Calendar midnightCalendar = Calendar.getInstance();
         midnightCalendar.setTimeInMillis(System.currentTimeMillis());
-        mediaPlayer = new MediaPlayer();
+        if (mediaPlayer==null) {
+            mediaPlayer = new MediaPlayer();
+        }
         final ImageButton btnPlayPause = (ImageButton)findViewById(R.id.btnPlayPause);
         final ImageButton btnForward = (ImageButton)findViewById(R.id.btnForward);
         final ImageButton btnBack = (ImageButton)findViewById(R.id.btnBack);
+
         leftTime = (TextView)findViewById(R.id.textViewLest);
         rightTime = (TextView)findViewById(R.id.textViewRight);
         seekbar = (SeekBar)findViewById(R.id.seekBar);
+
+
 
         // Set Download time to 2 AM
         midnightCalendar.set(Calendar.HOUR_OF_DAY, 2);
@@ -112,6 +126,18 @@ public class MainActivity extends AppCompatActivity {
         if (lastPlayedFile.equals(playedFile)) {
             String lastPlayedTime = mPrefs.getString("currentPlayedTime", "0");
             mediaPlayer.seekTo(Integer.parseInt(lastPlayedTime));
+        }
+
+        if (savedInstanceState != null) { ;
+            doPlay = Boolean.parseBoolean(savedInstanceState.getString("doPlay"));
+            oneTimeOnly = 0;
+            if (doPlay){
+                PlayAudio(btnPlayPause);
+            } else {
+                leftTime.setText(savedInstanceState.getString("leftTime"));
+                rightTime.setText(savedInstanceState.getString("rightTime"));
+            }
+
         }
 
 
@@ -151,34 +177,7 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 if (!doPlay) {
-                    btnPlayPause.setImageResource(R.drawable.pause);
-                    Toast.makeText(getApplicationContext(), "Playing sound", Toast.LENGTH_SHORT).show();
-                    mediaPlayer.start();
-                    doPlay = true;
-                    finalTime = mediaPlayer.getDuration();
-                    startTime = mediaPlayer.getCurrentPosition();
-
-                    if (oneTimeOnly == 0) {
-                        seekbar.setMax((int) finalTime);
-                        oneTimeOnly = 1;
-                    }
-
-                    seekbar.setProgress((int)startTime);
-                    myHandler.postDelayed(UpdateSongTime,100);
-
-                    leftTime.setText(String.format("%s:%s",
-                            minTwoDigits(TimeUnit.MILLISECONDS.toMinutes((long) finalTime)),
-                            minTwoDigits(TimeUnit.MILLISECONDS.toSeconds((long) finalTime) -
-                                    TimeUnit.MINUTES.toSeconds(TimeUnit.MILLISECONDS.toMinutes((long)
-                                            finalTime))))
-                    );
-
-                    rightTime.setText(String.format("%s:%s",
-                            minTwoDigits(TimeUnit.MILLISECONDS.toMinutes((long) finalTime)),
-                            minTwoDigits(TimeUnit.MILLISECONDS.toSeconds((long) finalTime) -
-                                    TimeUnit.MINUTES.toSeconds(TimeUnit.MILLISECONDS.toMinutes((long)
-                                            finalTime))))
-                    );
+                    PlayAudio(btnPlayPause);
                 }
                 else {
                     btnPlayPause.setImageResource(R.drawable.play);
@@ -193,6 +192,37 @@ public class MainActivity extends AppCompatActivity {
 
     }
 
+    private void PlayAudio(ImageButton btnPlayPause) {
+        btnPlayPause.setImageResource(R.drawable.pause);
+        Toast.makeText(getApplicationContext(), "Playing sound", Toast.LENGTH_SHORT).show();
+        mediaPlayer.start();
+        doPlay = true;
+        finalTime = mediaPlayer.getDuration();
+        startTime = mediaPlayer.getCurrentPosition();
+
+        if (oneTimeOnly == 0) {
+            seekbar.setMax((int) finalTime);
+            oneTimeOnly = 1;
+        }
+
+        seekbar.setProgress((int)startTime);
+        myHandler.postDelayed(UpdateSongTime,100);
+
+        leftTime.setText(String.format("%s:%s",
+                minTwoDigits(TimeUnit.MILLISECONDS.toMinutes((long) finalTime)),
+                minTwoDigits(TimeUnit.MILLISECONDS.toSeconds((long) finalTime) -
+                        TimeUnit.MINUTES.toSeconds(TimeUnit.MILLISECONDS.toMinutes((long)
+                                finalTime))))
+        );
+
+        rightTime.setText(String.format("%s:%s",
+                minTwoDigits(TimeUnit.MILLISECONDS.toMinutes((long) finalTime)),
+                minTwoDigits(TimeUnit.MILLISECONDS.toSeconds((long) finalTime) -
+                        TimeUnit.MINUTES.toSeconds(TimeUnit.MILLISECONDS.toMinutes((long)
+                                finalTime))))
+        );
+    }
+
     private String minTwoDigits(long n) {
         if (n<10) {
             return "0"+n;
@@ -204,18 +234,20 @@ public class MainActivity extends AppCompatActivity {
 
     private Runnable UpdateSongTime = new Runnable() {
         public void run() {
-            startTime = mediaPlayer.getCurrentPosition();
+            if (mediaPlayer != null ) {
+                startTime = mediaPlayer.getCurrentPosition();
 
-            leftTime.setText(String.format("%s:%s",
-                    minTwoDigits(TimeUnit.MILLISECONDS.toMinutes((long) startTime)),
-                    minTwoDigits(TimeUnit.MILLISECONDS.toSeconds((long) startTime) -
-                            TimeUnit.MINUTES.toSeconds(TimeUnit.MILLISECONDS.
-                                    toMinutes((long) startTime))))
-            );
+                leftTime.setText(String.format("%s:%s",
+                        minTwoDigits(TimeUnit.MILLISECONDS.toMinutes((long) startTime)),
+                        minTwoDigits(TimeUnit.MILLISECONDS.toSeconds((long) startTime) -
+                                TimeUnit.MINUTES.toSeconds(TimeUnit.MILLISECONDS.
+                                        toMinutes((long) startTime))))
+                );
 
 
-            seekbar.setProgress((int)startTime);
-            myHandler.postDelayed(this, 100);
+                seekbar.setProgress((int) startTime);
+                myHandler.postDelayed(this, 100);
+            }
         }
     };
 
@@ -241,8 +273,13 @@ public class MainActivity extends AppCompatActivity {
     @Override
     public void onDestroy() {
         super.onDestroy();
-        unregisterReceiver(onDownloadComplete);
         CommitToPrefs();
+        unregisterReceiver(onDownloadComplete);
+        mediaPlayer.release();
+        mediaPlayer = null;
+        if (isFinishing()) {
+
+        }
 
     }
 
