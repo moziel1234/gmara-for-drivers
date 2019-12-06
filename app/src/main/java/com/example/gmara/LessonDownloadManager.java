@@ -31,7 +31,7 @@ public class LessonDownloadManager {
     public static void DownloadLessson(final Context context) {
 
         final RequestQueue queue = Volley.newRequestQueue(context);
-        String url ="http://daf-yomi.com/Media.aspx?menu=1";
+        final String url ="http://daf-yomi.com/Media.aspx?menu=1";
         StringRequest stringRequest = new StringRequest(Request.Method.GET, url,
                 new Response.Listener<String>() {
                     @Override
@@ -52,7 +52,7 @@ public class LessonDownloadManager {
                         }
                         String massechet = valRes.get(0);
                         String daf = valRes.get(1);
-                        String url2 = String.format("http://daf-yomi.com/AjaxHandler.ashx?medialist=1&page=1&massechet=%s&medaf=%s&addaf=%s",
+                        final String url2 = String.format("http://daf-yomi.com/AjaxHandler.ashx?medialist=1&page=1&massechet=%s&medaf=%s&addaf=%s",
                                 massechet, daf, daf);
                         StringRequest stringRequest2 = new StringRequest(Request.Method.GET, url2,
                                 new Response.Listener<String>() {
@@ -78,7 +78,8 @@ public class LessonDownloadManager {
                                 }, new Response.ErrorListener() {
                             @Override
                             public void onErrorResponse(VolleyError error) {
-                                // TODO: handle error
+                                Log.e("Gmara", "Request " + url2 + "returned with error!");
+                                Log.e("Gmara", error.toString());
                             }
                         });
 
@@ -87,7 +88,8 @@ public class LessonDownloadManager {
                 }, new Response.ErrorListener() {
             @Override
             public void onErrorResponse(VolleyError error) {
-                // TODO: handle error
+                Log.e("Gmara", "Request " + url + "returned with error!");
+                Log.e("Gmara", error.toString());
             }
         });
 
@@ -95,9 +97,11 @@ public class LessonDownloadManager {
     }
 
     public static void handleDownload(Context context, String url) {
+        Log.i("Gmara", "Start handleDownload routine.");
         String[] arr = url.split("/");
         String nameOfFile = arr[arr.length - 1];
         if (new File(context.getExternalFilesDir("") + "/" + nameOfFile).exists() == false) {
+            Log.i("Gmara", "Going to download: " + url);
             File file = new File(context.getExternalFilesDir(null), nameOfFile);
             DownloadManager.Request request = new DownloadManager.Request(Uri.parse(url))
                     .setTitle(nameOfFile)// Title of the Download Notification
@@ -114,6 +118,7 @@ public class LessonDownloadManager {
     }
 
     public static void DeleteOldFile(Context context){
+        Log.i("Gmara", "Start DeleteOldFile routine.");
         Calendar time = Calendar.getInstance();
         time.add(Calendar.DAY_OF_YEAR,-7); //week
         File[] filesList = context.getExternalFilesDir("").listFiles();
@@ -121,6 +126,7 @@ public class LessonDownloadManager {
             Date lastModified = new Date(file.lastModified());
             if(lastModified.before(time.getTime())) {
                 //file is older than a week
+                Log.i("Gmara", "Going to delete: " +file.getName());
                 file.delete();
             }
         }

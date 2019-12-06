@@ -10,8 +10,12 @@ import android.content.IntentFilter;
 import android.content.SharedPreferences;
 import android.media.MediaPlayer;
 import java.io.File;
+
+import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
+import android.text.format.DateUtils;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -46,6 +50,7 @@ public class MainActivity extends AppCompatActivity {
     private TextView leftTime, rightTime;
     private SharedPreferences mPrefs;
     private String playedFile;
+    private String playingFile;
 
     public BroadcastReceiver onDownloadComplete = new BroadcastReceiver() {
         @Override
@@ -109,18 +114,31 @@ public class MainActivity extends AppCompatActivity {
 
         // Init player with last file
         lastModifiedFile = lastFileModified();
-        TextView playLabel = (TextView)findViewById(R.id.textViewPlayFile);
-        String[] arr = lastModifiedFile.toString().split("/");
-        playedFile = arr[arr.length - 1];
-        playLabel.setText(playedFile);
+        if (lastModifiedFile != null) {
+            TextView playLabel = (TextView) findViewById(R.id.textViewPlayFile);
+            String[] arr = lastModifiedFile.toString().split("/");
+            playedFile = arr[arr.length - 1];
+            playLabel.setText(playedFile);
+        }
 
         String lastPlayedFile = mPrefs.getString("playedFile", "NoSaved");
 
+
+
         try {
-            mediaPlayer.setDataSource(lastModifiedFile.toString());
+            if (mPrefs.contains("lastTfila") && DateUtils.isToday(Long.parseLong(mPrefs.getString("lastTfila", "0"))) ) {
+                playingFile = lastModifiedFile.toString();
+                mediaPlayer.setDataSource(playingFile);
+            } else {
+                Uri mediaPath = Uri.parse("android.resource://" + getPackageName() + "/" + R.raw.tfilat_haderech);
+                playingFile = mediaPath.toString();
+                mediaPlayer.setDataSource(getApplicationContext(), mediaPath);
+                mPrefs.edit().putString("lastTfila", Calendar.getInstance().getTimeInMillis() +"").commit();
+            }
+
             mediaPlayer.prepare();
         } catch (Exception e)  {
-            // TODO: handle error
+            Log.e("Gmara", "media Player preperation failed");
         }
 
         if (lastPlayedFile.equals(playedFile)) {
