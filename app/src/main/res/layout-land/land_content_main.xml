@@ -14,7 +14,7 @@
         android:layout_height="wrap_content"
         android:layout_marginTop="48dp"
         android:onClick="DownloadLastLesson"
-        android:text="Dwonload Last Lesson"
+        android:text="Download Last Lesson"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.984"
         app:layout_constraintStart_toEndOf="@+id/textViewPlayFile"

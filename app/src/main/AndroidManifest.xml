@@ -16,7 +16,9 @@
         android:supportsRtl="true"
         android:theme="@style/AppTheme"
         android:usesCleartextTraffic="true">
-
+        <activity
+            android:name=".SettingsActivity"
+            android:label="@string/title_activity_settings" />
         <activity
             android:name=".MainActivity"
             android:label="@string/app_name"
@@ -34,11 +36,9 @@
             android:enabled="true"
             android:exported="true">
             <intent-filter>
-                <action android:name="com.example.gmara.MyBroadCastReceiver" >
-                </action>
+                <action android:name="com.example.gmara.MyBroadCastReceiver" />
             </intent-filter>
         </receiver>
-
     </application>
 
 </manifest>

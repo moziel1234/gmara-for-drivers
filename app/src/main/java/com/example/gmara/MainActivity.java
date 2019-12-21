@@ -27,6 +27,7 @@ import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
+import androidx.preference.PreferenceManager;
 
 import java.io.FileFilter;
 import java.util.Calendar;
@@ -49,6 +50,7 @@ public class MainActivity extends AppCompatActivity {
     private SeekBar seekbar;
     private TextView leftTime, rightTime;
     private SharedPreferences mPrefs;
+    private SharedPreferences appPrefs;
     private String playedFile;
     private String playingFile;
 
@@ -74,6 +76,8 @@ public class MainActivity extends AppCompatActivity {
         super.onSaveInstanceState(outState);
     }
 
+
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -81,6 +85,7 @@ public class MainActivity extends AppCompatActivity {
         // Init
         mPrefs = getSharedPreferences("Gmara", 0);
         registerReceiver(onDownloadComplete, new IntentFilter(DownloadManager.ACTION_DOWNLOAD_COMPLETE));
+        appPrefs = PreferenceManager.getDefaultSharedPreferences(this);
 
         setContentView(R.layout.activity_main);
         Toolbar toolbar = findViewById(R.id.toolbar);
@@ -90,6 +95,8 @@ public class MainActivity extends AppCompatActivity {
         midnightCalendar.setTimeInMillis(System.currentTimeMillis());
         if (mediaPlayer==null) {
             mediaPlayer = new MediaPlayer();
+
+
         }
         final ImageButton btnPlayPause = (ImageButton)findViewById(R.id.btnPlayPause);
         final ImageButton btnForward = (ImageButton)findViewById(R.id.btnForward);
@@ -126,14 +133,13 @@ public class MainActivity extends AppCompatActivity {
 
 
         try {
-            if (mPrefs.contains("lastTfila") && DateUtils.isToday(Long.parseLong(mPrefs.getString("lastTfila", "0"))) ) {
+            if (!shouldRunTfilatHaderech()) {
                 playingFile = lastModifiedFile.toString();
                 mediaPlayer.setDataSource(playingFile);
             } else {
                 Uri mediaPath = Uri.parse("android.resource://" + getPackageName() + "/" + R.raw.tfilat_haderech);
                 playingFile = mediaPath.toString();
                 mediaPlayer.setDataSource(getApplicationContext(), mediaPath);
-                mPrefs.edit().putString("lastTfila", Calendar.getInstance().getTimeInMillis() +"").commit();
             }
 
             mediaPlayer.prepare();
@@ -160,6 +166,29 @@ public class MainActivity extends AppCompatActivity {
 
 
         seekbar.setClickable(false);
+
+        mediaPlayer.setOnCompletionListener(new MediaPlayer.OnCompletionListener() {
+
+            @Override
+            public void onCompletion(MediaPlayer mp) {
+                if (playingFile.contains("resource")) { //tfilat haderech
+                    lastModifiedFile = lastFileModified();
+                    playingFile = lastModifiedFile.toString();
+                    try {
+                        mediaPlayer = new MediaPlayer();
+                        mediaPlayer.setDataSource(playingFile);
+                        mediaPlayer.prepare();
+                        finalTime = mediaPlayer.getDuration();
+                        seekbar.setMax((int) finalTime);
+                    } catch (Exception ex) {
+                        Log.e("Gmara", ex.toString());
+                    }
+
+                    PlayAudio(null);
+                }
+            }
+
+        });
 
         btnForward.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -210,8 +239,29 @@ public class MainActivity extends AppCompatActivity {
 
     }
 
+    private boolean shouldRunTfilatHaderech() {
+        if ( appPrefs.getBoolean("tfilat_haderech", false)) {
+            if (!mPrefs.contains("lastTfila"))
+                return true;
+            else {
+                if (!DateUtils.isToday(Long.parseLong(mPrefs.getString("lastTfila", "0"))))
+                    return true;
+                else
+                    return false;
+
+            }
+
+        }
+        else {
+            return false;
+        }
+    }
+
     private void PlayAudio(ImageButton btnPlayPause) {
-        btnPlayPause.setImageResource(R.drawable.pause);
+        if (playingFile.contains("resource"))
+            mPrefs.edit().putString("lastTfila", Calendar.getInstance().getTimeInMillis() +"").commit();
+        if (btnPlayPause != null)
+            btnPlayPause.setImageResource(R.drawable.pause);
         Toast.makeText(getApplicationContext(), "Playing sound", Toast.LENGTH_SHORT).show();
         mediaPlayer.start();
         doPlay = true;
@@ -240,6 +290,8 @@ public class MainActivity extends AppCompatActivity {
                                 finalTime))))
         );
     }
+
+
 
     private String minTwoDigits(long n) {
         if (n<10) {
@@ -327,11 +379,20 @@ public class MainActivity extends AppCompatActivity {
 
         //noinspection SimplifiableIfStatement
         if (id == R.id.action_settings) {
+            startActivity(new Intent(MainActivity.this, SettingsActivity.class));
             return true;
         }
 
         return super.onOptionsItemSelected(item);
     }
+
+    // Start when click on the button
+    public void DebugdeleteTfila(View view) {
+        if (mPrefs.contains("lastTfila")) {
+            mPrefs.edit().remove("lastTfila").commit();
+        }
+    }
+
 
     // Start when click on the button
     public void DownloadLastLesson(View view) {
