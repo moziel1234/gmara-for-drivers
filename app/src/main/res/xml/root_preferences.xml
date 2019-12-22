@@ -35,7 +35,7 @@
 
     <PreferenceCategory app:title="@string/lecturer_header">
         <ListPreference
-            app:defaultValue="1"
+            app:defaultValue="navon"
             app:key="magid_name"
             app:useSimpleSummaryProvider="true"/>
 

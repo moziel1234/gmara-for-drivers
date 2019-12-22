@@ -2,8 +2,11 @@ package com.example.gmara;
 
 import android.app.DownloadManager;
 import android.content.Context;
+import android.content.SharedPreferences;
 import android.net.Uri;
 import android.util.Log;
+
+import androidx.preference.PreferenceManager;
 
 import com.android.volley.Request;
 import com.android.volley.RequestQueue;
@@ -121,12 +124,14 @@ public class LessonDownloadManager {
     public static void DownloadLesson(String response, Context context) {
         try {
             JSONArray arrayJ = new JSONArray(response);
+            SharedPreferences sp = PreferenceManager.getDefaultSharedPreferences(context);
+            String magidName = sp.getString("magid_name","navon");
 
             for (int i = 0; i < arrayJ.length(); i++) {
                 JSONObject obj = arrayJ.getJSONObject(i);
                 String mpType = obj.getString("e");
                 String downloadUrl = obj.getString("k");
-                if (mpType.equals("mp3") && downloadUrl.contains("navon")) {
+                if (mpType.equals("mp3") && downloadUrl.contains(magidName)) {
                     handleDownload(context, downloadUrl);
                     break;
                 }

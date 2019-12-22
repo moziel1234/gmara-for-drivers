@@ -171,7 +171,7 @@ public class MainActivity extends AppCompatActivity {
 
             @Override
             public void onCompletion(MediaPlayer mp) {
-                if (playingFile.contains("resource")) { //tfilat haderech
+                if (playingFile != null && playingFile.contains("resource")) { //tfilat haderech
                     lastModifiedFile = lastFileModified();
                     playingFile = lastModifiedFile.toString();
                     try {
@@ -296,8 +296,7 @@ public class MainActivity extends AppCompatActivity {
     private String minTwoDigits(long n) {
         if (n<10) {
             return "0"+n;
-        }
-        else {
+        } else {
             return ""+n;
         }
     }
