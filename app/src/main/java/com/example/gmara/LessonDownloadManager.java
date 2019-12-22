@@ -20,6 +20,8 @@ import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
+import java.util.concurrent.Callable;
+import java.util.function.Function;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -28,7 +30,9 @@ import static android.content.Context.DOWNLOAD_SERVICE;
 
 public class LessonDownloadManager {
 
-    public static void DownloadLessson(final Context context) {
+
+
+    public static void ReadDefYomiSite(final Context context, final String action) {
 
         final RequestQueue queue = Volley.newRequestQueue(context);
         final String url ="http://daf-yomi.com/Media.aspx?menu=1";
@@ -36,43 +40,15 @@ public class LessonDownloadManager {
                 new Response.Listener<String>() {
                     @Override
                     public void onResponse(String response) {
-                        String[] resList = response.split("\n");
-                        List<String> valRes = new ArrayList<String>();
-                        Pattern pattern = Pattern.compile("(?<=value=\")(\\d+)(?=\")");
-                        for (int i = 0; i < resList.length; i++) {
-                            if (resList[i].contains("elected")) {
-                                Matcher matcher = pattern.matcher(resList[i]);
-                                while (matcher.find()) {
-                                    valRes.add(matcher.group(1));
-                                }
-                            }
-                            if (valRes.size() >= 2) {
-                                break;
-                            }
-                        }
-                        String massechet = valRes.get(0);
-                        String daf = valRes.get(1);
-                        final String url2 = String.format("http://daf-yomi.com/AjaxHandler.ashx?medialist=1&page=1&massechet=%s&medaf=%s&addaf=%s",
-                                massechet, daf, daf);
+                        final String url2 = GetDataUrlFromHtml(response);
                         StringRequest stringRequest2 = new StringRequest(Request.Method.GET, url2,
                                 new Response.Listener<String>() {
                                     @Override
                                     public void onResponse(String response) {
-                                        try {
-                                            JSONArray arrayJ = new JSONArray(response);
-
-                                            for (int i = 0; i < arrayJ.length(); i++) {
-                                                JSONObject obj = arrayJ.getJSONObject(i);
-                                                String mpType = obj.getString("e");
-                                                String downloadUrl = obj.getString("k");
-                                                if (mpType.equals("mp3") && downloadUrl.contains("navon")) {
-                                                    handleDownload(context, downloadUrl);
-                                                    break;
-                                                }
-                                            }
-
-                                        } catch (Exception t) {
-                                            Log.e("Gmara", "Could not parse malformed JSON: \"" + response + "\"");
+                                        if (action.equals("DownloadLastLesson")) {
+                                            DownloadLesson(response, context);
+                                        } else if (action.equals("populateMagids")){
+                                            PopultateMagids(response);
                                         }
                                     }
                                 }, new Response.ErrorListener() {
@@ -94,6 +70,71 @@ public class LessonDownloadManager {
         });
 
         queue.add(stringRequest);
+    }
+
+    private static void PopultateMagids(String response) {
+        List<String> listMagidNames = new ArrayList<String>();
+        List<String> listMagidVals = new ArrayList<String>();
+
+        try {
+            JSONArray arrayJ = new JSONArray(response);
+
+            for (int i = 0; i < arrayJ.length(); i++) {
+                JSONObject obj = arrayJ.getJSONObject(i);
+                String mpType = obj.getString("e");
+                String magidName = obj.getString("ma");
+                String vals = obj.getString("k").split("/")[4];
+                if (mpType.equals("mp3")) {
+                    listMagidNames.add(magidName);
+                    listMagidVals.add(vals);
+                }
+            }
+
+        } catch (Exception t) {
+            Log.e("Gmara", "Could not parse malformed JSON: \"" + response + "\"");
+        }
+        SettingsActivity.entries =  listMagidNames.toArray(new CharSequence[listMagidNames.size()]);
+        SettingsActivity.entryValues =  listMagidVals.toArray(new CharSequence[listMagidVals.size()]);
+    }
+
+    private static String GetDataUrlFromHtml(String response) {
+        String[] resList = response.split("\n");
+        List<String> valRes = new ArrayList<String>();
+        Pattern pattern = Pattern.compile("(?<=value=\")(\\d+)(?=\")");
+        for (int i = 0; i < resList.length; i++) {
+            if (resList[i].contains("elected")) {
+                Matcher matcher = pattern.matcher(resList[i]);
+                while (matcher.find()) {
+                    valRes.add(matcher.group(1));
+                }
+            }
+            if (valRes.size() >= 2) {
+                break;
+            }
+        }
+        String massechet = valRes.get(0);
+        String daf = valRes.get(1);
+        return String.format("http://daf-yomi.com/AjaxHandler.ashx?medialist=1&page=1&massechet=%s&medaf=%s&addaf=%s",
+                massechet, daf, daf);
+    }
+
+    public static void DownloadLesson(String response, Context context) {
+        try {
+            JSONArray arrayJ = new JSONArray(response);
+
+            for (int i = 0; i < arrayJ.length(); i++) {
+                JSONObject obj = arrayJ.getJSONObject(i);
+                String mpType = obj.getString("e");
+                String downloadUrl = obj.getString("k");
+                if (mpType.equals("mp3") && downloadUrl.contains("navon")) {
+                    handleDownload(context, downloadUrl);
+                    break;
+                }
+            }
+
+        } catch (Exception t) {
+            Log.e("Gmara", "Could not parse malformed JSON: \"" + response + "\"");
+        }
     }
 
     public static void handleDownload(Context context, String url) {

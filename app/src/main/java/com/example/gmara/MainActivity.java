@@ -19,7 +19,6 @@ import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
-import android.widget.Button;
 import android.widget.ImageButton;
 import android.widget.SeekBar;
 import android.widget.TextView;
@@ -83,6 +82,7 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
 
         // Init
+        LessonDownloadManager.ReadDefYomiSite(this, "populateMagids");
         mPrefs = getSharedPreferences("Gmara", 0);
         registerReceiver(onDownloadComplete, new IntentFilter(DownloadManager.ACTION_DOWNLOAD_COMPLETE));
         appPrefs = PreferenceManager.getDefaultSharedPreferences(this);
@@ -396,7 +396,7 @@ public class MainActivity extends AppCompatActivity {
 
     // Start when click on the button
     public void DownloadLastLesson(View view) {
-        LessonDownloadManager.DownloadLessson(this);
+        LessonDownloadManager.ReadDefYomiSite(this, "DownloadLastLesson");
     }
 
 

@@ -16,6 +16,9 @@ import androidx.preference.PreferenceManager;
 
 public class SettingsActivity extends AppCompatActivity {
 
+    public static CharSequence[] entries = new CharSequence[]{};
+    public static CharSequence[] entryValues = new CharSequence[]{};
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -32,12 +35,10 @@ public class SettingsActivity extends AppCompatActivity {
     }
 
     protected static ListPreference setListPreferenceData(ListPreference lp, Activity mActivity) {
-        CharSequence[] entries = { "הרב שמואל נבון", "Two", "Three" };
-        CharSequence[] entryValues = { "1", "2", "3" };
         if(lp == null)
             lp = new ListPreference(mActivity);
         lp.setEntries(entries);
-        lp.setDefaultValue("1");
+        lp.setDefaultValue("navon");
         lp.setEntryValues(entryValues);
         // lp.setSummary(lp.getEntry());
         lp.setDialogTitle(R.string.magid_dialog);
