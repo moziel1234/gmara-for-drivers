@@ -132,7 +132,7 @@ public class LessonDownloadManager {
                 String mpType = obj.getString("e");
                 String downloadUrl = obj.getString("k");
                 if (mpType.equals("mp3") && downloadUrl.contains(magidName)) {
-                    handleDownload(context, downloadUrl);
+                    handleDownload(context, downloadUrl, magidName);
                     break;
                 }
             }
@@ -142,10 +142,10 @@ public class LessonDownloadManager {
         }
     }
 
-    public static void handleDownload(Context context, String url) {
+    public static void handleDownload(Context context, String url, String magidNane) {
         Log.i("Gmara", "Start handleDownload routine.");
         String[] arr = url.split("/");
-        String nameOfFile = arr[arr.length - 1];
+        String nameOfFile = (arr[arr.length - 1]).replace(".","-" + magidNane+ ".");
         if (new File(context.getExternalFilesDir("") + "/" + nameOfFile).exists() == false) {
             Log.i("Gmara", "Going to download: " + url);
             File file = new File(context.getExternalFilesDir(null), nameOfFile);

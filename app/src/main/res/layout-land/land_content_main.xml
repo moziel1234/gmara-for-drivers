@@ -17,7 +17,7 @@
         android:text="Download Last Lesson"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.984"
-        app:layout_constraintStart_toEndOf="@+id/textViewPlayFile"
+        app:layout_constraintStart_toEndOf="@+id/spinnerPlayFile"
         app:layout_constraintTop_toTopOf="parent" />
 
     <ImageButton
@@ -85,14 +85,13 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="@+id/btnPlayPause" />
 
-    <TextView
-        android:id="@+id/textViewPlayFile"
+    <Spinner
+        android:id="@+id/spinnerPlayFile"
         android:layout_width="348dp"
         android:layout_height="65dp"
         android:layout_marginStart="188dp"
         android:layout_marginTop="48dp"
         android:gravity="center"
-        android:text="NO FILES TO PLAY"
         android:textSize="22dp"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />

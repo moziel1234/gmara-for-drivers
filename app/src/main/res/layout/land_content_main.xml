@@ -12,10 +12,12 @@
         android:id="@+id/btnDeletePref"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:layout_marginTop="188dp"
         android:onClick="DebugdeleteTfila"
         android:text="Delete Tfilat"
-        app:layout_constraintBottom_toTopOf="@+id/textViewPlayFile"
+        app:layout_constraintBottom_toTopOf="@+id/spinnerPlayFile"
         app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.409"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintVertical_bias="0.705" />
@@ -24,10 +26,12 @@
         android:id="@+id/btnDownloadLastLesson"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:layout_marginTop="260dp"
         android:onClick="DownloadLastLesson"
         android:text="Download Last Lesson"
-        app:layout_constraintBottom_toTopOf="@+id/textViewPlayFile"
+        app:layout_constraintBottom_toTopOf="@+id/spinnerPlayFile"
         app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.425"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintVertical_bias="0.905" />
@@ -96,13 +100,12 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 
-    <TextView
-        android:id="@+id/textViewPlayFile"
+    <Spinner
+        android:id="@+id/spinnerPlayFile"
         android:layout_width="348dp"
         android:layout_height="65dp"
         android:layout_marginTop="344dp"
         android:gravity="center"
-        android:text="NO FILES TO PLAY"
         android:textSize="22dp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.492"

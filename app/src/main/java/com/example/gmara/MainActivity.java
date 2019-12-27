@@ -19,8 +19,10 @@ import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.ArrayAdapter;
 import android.widget.ImageButton;
 import android.widget.SeekBar;
+import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -29,7 +31,9 @@ import androidx.appcompat.widget.Toolbar;
 import androidx.preference.PreferenceManager;
 
 import java.io.FileFilter;
+import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.List;
 import java.util.concurrent.TimeUnit;
 
 public class MainActivity extends AppCompatActivity {
@@ -53,6 +57,8 @@ public class MainActivity extends AppCompatActivity {
     private String playedFile;
     private String playingFile;
 
+    private Spinner spinnerFile;
+
     public BroadcastReceiver onDownloadComplete = new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, Intent intent) {
@@ -60,6 +66,7 @@ public class MainActivity extends AppCompatActivity {
             long id = intent.getLongExtra(DownloadManager.EXTRA_DOWNLOAD_ID, -1);
             //Checking if the received broadcast is for our enqueued download by matching download id
             if (downloadID == id) {
+                populateFileSpinner();
                 Toast.makeText(MainActivity.this, "Download Completed", Toast.LENGTH_SHORT).show();
             }
         }
@@ -95,8 +102,6 @@ public class MainActivity extends AppCompatActivity {
         midnightCalendar.setTimeInMillis(System.currentTimeMillis());
         if (mediaPlayer==null) {
             mediaPlayer = new MediaPlayer();
-
-
         }
         final ImageButton btnPlayPause = (ImageButton)findViewById(R.id.btnPlayPause);
         final ImageButton btnForward = (ImageButton)findViewById(R.id.btnForward);
@@ -122,10 +127,10 @@ public class MainActivity extends AppCompatActivity {
         // Init player with last file
         lastModifiedFile = lastFileModified();
         if (lastModifiedFile != null) {
-            TextView playLabel = (TextView) findViewById(R.id.textViewPlayFile);
+            // TextView playLabel = (TextView) findViewById(R.id.spinnerPlayFile);
             String[] arr = lastModifiedFile.toString().split("/");
             playedFile = arr[arr.length - 1];
-            playLabel.setText(playedFile);
+            // playLabel.setText(playedFile);
         }
 
         String lastPlayedFile = mPrefs.getString("playedFile", "NoSaved");
@@ -231,12 +236,26 @@ public class MainActivity extends AppCompatActivity {
                     Toast.makeText(getApplicationContext(), "Pause sound", Toast.LENGTH_SHORT).show();
                     mediaPlayer.pause();
                     doPlay = false;
-                    CommitToPrefs();
+                    CommitToPrefs(false);
                 }
             }
         });
 
+        populateFileSpinner();
+    }
 
+    private void populateFileSpinner() {
+        spinnerFile = (Spinner) findViewById(R.id.spinnerPlayFile);
+        List<String> list = new ArrayList<String>();
+        File[] filesList = this.getExternalFilesDir("").listFiles();
+        for (File file : filesList) {
+            list.add(file.getName());
+        }
+
+        ArrayAdapter<String> dataAdapter = new ArrayAdapter<String>(this,
+                android.R.layout.simple_spinner_item, list);
+        dataAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        spinnerFile.setAdapter(dataAdapter);
     }
 
     private boolean shouldRunTfilatHaderech() {
@@ -342,22 +361,35 @@ public class MainActivity extends AppCompatActivity {
     @Override
     public void onDestroy() {
         super.onDestroy();
-        CommitToPrefs();
+
+        CommitToPrefs(true);
+
+
         unregisterReceiver(onDownloadComplete);
         mediaPlayer.release();
         mediaPlayer = null;
+
         if (isFinishing()) {
 
         }
 
     }
 
-    private void CommitToPrefs() {
+    private void CommitToPrefs(Boolean onDestroy) {
         long currentPlayedTime = TimeUnit.MILLISECONDS.toMillis((long) startTime);
-        if (currentPlayedTime > 0) {
-            SharedPreferences.Editor mEditor = mPrefs.edit();
-            mEditor.putString("currentPlayedTime", "" + currentPlayedTime).commit();
-            mEditor.putString("playedFile", playedFile).commit();
+        SharedPreferences.Editor mEditor = mPrefs.edit();
+        if (onDestroy) {
+            if (playingFile != null && playingFile.contains("resource")) { //tfilat haderech
+                mEditor.putString("currentPlayedTime", "" + 0).commit();
+                if (currentPlayedTime > 0) {
+                    mEditor.putString("playedFile", playedFile).commit();
+                }
+            }
+        } else {
+            if (currentPlayedTime > 0) {
+                mEditor.putString("currentPlayedTime", "" + currentPlayedTime).commit();
+                mEditor.putString("playedFile", playedFile).commit();
+            }
         }
     }
 
