@@ -36,6 +36,14 @@ import java.util.Calendar;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 
+import io.flic.lib.FlicAppNotInstalledException;
+import io.flic.lib.FlicBroadcastReceiverFlags;
+import io.flic.lib.FlicButton;
+import io.flic.lib.FlicButtonCallback;
+import io.flic.lib.FlicButtonCallbackFlags;
+import io.flic.lib.FlicManager;
+import io.flic.lib.FlicManagerInitializedCallback;
+
 public class MainActivity extends AppCompatActivity {
     public static long downloadID;
     private PendingIntent pendingIntent;
@@ -58,6 +66,10 @@ public class MainActivity extends AppCompatActivity {
     private String playingFile;
 
     private Spinner spinnerFile;
+
+    private FlicManager manager;
+
+
 
     public BroadcastReceiver onDownloadComplete = new BroadcastReceiver() {
         @Override
@@ -88,6 +100,23 @@ public class MainActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
+        // Init FLIC
+        FlicManager.setAppCredentials(
+                "ad7c6ef1-e2fa-4855-8038-cf964938231c",
+                "b740e9ae-6d03-49d0-9185-509a9c57c204",
+                "GEMARA-FOR-DRIVERS"
+        );
+
+        try {
+            FlicManager.getInstance(this, new FlicManagerInitializedCallback() {
+                @Override
+                public void onInitialized(FlicManager manager) {
+                    manager.initiateGrabButton(MainActivity.this);
+                }
+            });
+        } catch (FlicAppNotInstalledException err) {
+            Toast.makeText(this, "Flic App is not installed", Toast.LENGTH_SHORT).show();
+        }
         // Init
         LessonDownloadManager.ReadDefYomiSite(this, "populateMagids");
         mPrefs = getSharedPreferences("Gmara", 0);
@@ -430,7 +459,28 @@ public class MainActivity extends AppCompatActivity {
         LessonDownloadManager.ReadDefYomiSite(this, "DownloadLastLesson");
     }
 
+    public void grabButton(View v) {
+        if (manager != null) {
+            manager.initiateGrabButton(this);
+        }
+    }
 
+    @Override
+    protected void onActivityResult(final int requestCode, final int resultCode, final Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        FlicManager.getInstance(this, new FlicManagerInitializedCallback() {
+            @Override
+            public void onInitialized(FlicManager manager) {
+                FlicButton button = manager.completeGrabButton(requestCode, resultCode, data);
+                if (button != null) {
+                    button.registerListenForBroadcast(FlicBroadcastReceiverFlags.UP_OR_DOWN | FlicBroadcastReceiverFlags.REMOVED);
+                    Toast.makeText(MainActivity.this, "Grabbed a button", Toast.LENGTH_SHORT).show();
+                } else {
+                    Toast.makeText(MainActivity.this, "Did not grab any button", Toast.LENGTH_SHORT).show();
+                }
+            }
+        });
+    }
 
 
 }
