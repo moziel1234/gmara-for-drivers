@@ -6,8 +6,10 @@
     <!-- Preference Titles -->
     <string name="tfilat_haderech_header">Tfilat Haderech</string>
     <string name="lecturer_header">Magid</string>
+    <string name="flic_header">Flic button</string>
 
     <string name="tfilat_haderech_title">Play</string>
+    <string name="flic_title">Use Flic button</string>
     <string name="frequency_title">Frequency</string>
 
     <string name="magid_title">הרב שמואל נבון</string>

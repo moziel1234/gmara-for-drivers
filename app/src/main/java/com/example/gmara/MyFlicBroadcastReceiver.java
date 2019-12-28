@@ -21,14 +21,22 @@ public class MyFlicBroadcastReceiver extends FlicBroadcastReceiver {
         );
     }
 
+
     @Override
-    public void onButtonUpOrDown(Context context, FlicButton button, boolean wasQueued, int timeDiff, boolean isUp, boolean isDown) {
-        if (isUp) {
-            Toast.makeText(context.getApplicationContext(), "Botton UP", Toast.LENGTH_LONG).show();
-        } else {
-            Toast.makeText(context.getApplicationContext(), "Botton Down", Toast.LENGTH_LONG).show();
+    public void onButtonSingleOrDoubleClickOrHold(Context context, FlicButton button, boolean wasQueued, int timeDiff, boolean isSingleClick, boolean isDoubleClick, boolean isHold) {
+        if (isSingleClick) {
+            MainActivity.getInstance().PressOnBackward();
+        }
+        if (isHold) {
+            MainActivity.getInstance().PressOnPlayPause(MainActivity.getInstance().btnPlayPause);
+        }
+
+        if (isDoubleClick) {
+            MainActivity.getInstance().PressOnForward();
         }
     }
+
+
 
     @Override
     public void onButtonRemoved(Context context, FlicButton button) {

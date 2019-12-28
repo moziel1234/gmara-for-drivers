@@ -45,7 +45,10 @@ import io.flic.lib.FlicManager;
 import io.flic.lib.FlicManagerInitializedCallback;
 
 public class MainActivity extends AppCompatActivity {
+    private static MainActivity instance;
+
     public static long downloadID;
+    public ImageButton btnPlayPause;
     private PendingIntent pendingIntent;
     private File lastModifiedFile;
     private MediaPlayer mediaPlayer;
@@ -68,6 +71,7 @@ public class MainActivity extends AppCompatActivity {
     private Spinner spinnerFile;
 
     private FlicManager manager;
+    private boolean grabedFlicButton;
 
 
 
@@ -91,6 +95,7 @@ public class MainActivity extends AppCompatActivity {
         outState.putString("rightTime", rightTime.getText().toString());
         outState.putString("duration", mediaPlayer.getDuration()+"");
         outState.putString("doPlay", Boolean.toString(doPlay));
+        outState.putString("grabedFlicButton", Boolean.toString(grabedFlicButton));
         super.onSaveInstanceState(outState);
     }
 
@@ -107,21 +112,31 @@ public class MainActivity extends AppCompatActivity {
                 "GEMARA-FOR-DRIVERS"
         );
 
-        try {
-            FlicManager.getInstance(this, new FlicManagerInitializedCallback() {
-                @Override
-                public void onInitialized(FlicManager manager) {
-                    manager.initiateGrabButton(MainActivity.this);
-                }
-            });
-        } catch (FlicAppNotInstalledException err) {
-            Toast.makeText(this, "Flic App is not installed", Toast.LENGTH_SHORT).show();
-        }
+
         // Init
+        instance = this;
         LessonDownloadManager.ReadDefYomiSite(this, "populateMagids");
         mPrefs = getSharedPreferences("Gmara", 0);
         registerReceiver(onDownloadComplete, new IntentFilter(DownloadManager.ACTION_DOWNLOAD_COMPLETE));
         appPrefs = PreferenceManager.getDefaultSharedPreferences(this);
+
+        if ( appPrefs.getBoolean("use_flic", false)) {
+            if (savedInstanceState != null) {
+                grabedFlicButton = Boolean.parseBoolean(savedInstanceState.getString("grabedFlicButton"));
+            }
+            if (!grabedFlicButton) {
+                try {
+                    FlicManager.getInstance(this, new FlicManagerInitializedCallback() {
+                        @Override
+                        public void onInitialized(FlicManager manager) {
+                            manager.initiateGrabButton(MainActivity.this);
+                        }
+                    });
+                } catch (FlicAppNotInstalledException err) {
+                    Toast.makeText(this, "Flic App is not installed", Toast.LENGTH_SHORT).show();
+                }
+            }
+        }
 
         setContentView(R.layout.activity_main);
         Toolbar toolbar = findViewById(R.id.toolbar);
@@ -132,7 +147,7 @@ public class MainActivity extends AppCompatActivity {
         if (mediaPlayer==null) {
             mediaPlayer = new MediaPlayer();
         }
-        final ImageButton btnPlayPause = (ImageButton)findViewById(R.id.btnPlayPause);
+        btnPlayPause = (ImageButton)findViewById(R.id.btnPlayPause);
         final ImageButton btnForward = (ImageButton)findViewById(R.id.btnForward);
         final ImageButton btnBack = (ImageButton)findViewById(R.id.btnBack);
 
@@ -227,50 +242,62 @@ public class MainActivity extends AppCompatActivity {
         btnForward.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                int temp = (int)startTime;
-
-                if((temp+forwardTime)<=finalTime){
-                    startTime = startTime + forwardTime;
-                    mediaPlayer.seekTo((int) startTime);
-                    // Toast.makeText(getApplicationContext(),"You have Jumped forward 30 seconds",Toast.LENGTH_SHORT).show();
-                }else{
-                    // Toast.makeText(getApplicationContext(),"Cannot jump forward 30 seconds",Toast.LENGTH_SHORT).show();
-                }
+                PressOnForward();
             }
         });
 
         btnBack.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                int temp = (int)startTime;
-
-                if((temp-backwardTime)>0){
-                    startTime = startTime - backwardTime;
-                    mediaPlayer.seekTo((int) startTime);
-                    // Toast.makeText(getApplicationContext(),"You have Jumped backward 30 seconds",Toast.LENGTH_SHORT).show();
-                }else{
-                    // Toast.makeText(getApplicationContext(),"Cannot jump backward 30seconds",Toast.LENGTH_SHORT).show();
-                }
+                PressOnBackward();
             }
         });
 
         btnPlayPause.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if (!doPlay) {
-                    PlayAudio(btnPlayPause);
-                }
-                else {
-                    btnPlayPause.setImageResource(R.drawable.play);
-                    Toast.makeText(getApplicationContext(), "Pause sound", Toast.LENGTH_SHORT).show();
-                    mediaPlayer.pause();
-                    doPlay = false;
-                    CommitToPrefs(false);
-                }
+                PressOnPlayPause(btnPlayPause);
             }
         });
 
         populateFileSpinner();
+    }
+
+    public  void PressOnPlayPause(ImageButton btnPlayPause) {
+        if (!doPlay) {
+            PlayAudio(btnPlayPause);
+        }
+        else {
+            btnPlayPause.setImageResource(R.drawable.play);
+            Toast.makeText(getApplicationContext(), "Pause sound", Toast.LENGTH_SHORT).show();
+            mediaPlayer.pause();
+            doPlay = false;
+            CommitToPrefs(false);
+        }
+    }
+
+    public void PressOnBackward() {
+        int temp = (int)startTime;
+
+        if((temp-backwardTime)>0){
+            startTime = startTime - backwardTime;
+            mediaPlayer.seekTo((int) startTime);
+            // Toast.makeText(getApplicationContext(),"You have Jumped backward 30 seconds",Toast.LENGTH_SHORT).show();
+        }else{
+            // Toast.makeText(getApplicationContext(),"Cannot jump backward 30seconds",Toast.LENGTH_SHORT).show();
+        }
+    }
+
+    public void PressOnForward() {
+        int temp = (int)startTime;
+
+        if((temp+forwardTime)<=finalTime){
+            startTime = startTime + forwardTime;
+            mediaPlayer.seekTo((int) startTime);
+            // Toast.makeText(getApplicationContext(),"You have Jumped forward 30 seconds",Toast.LENGTH_SHORT).show();
+        }else{
+            // Toast.makeText(getApplicationContext(),"Cannot jump forward 30 seconds",Toast.LENGTH_SHORT).show();
+        }
     }
 
     private void populateFileSpinner() {
@@ -410,6 +437,7 @@ public class MainActivity extends AppCompatActivity {
         if (onDestroy) {
             if (playingFile != null && playingFile.contains("resource")) { //tfilat haderech
                 mEditor.putString("currentPlayedTime", "" + 0).commit();
+
                 if (currentPlayedTime > 0) {
                     mEditor.putString("playedFile", playedFile).commit();
                 }
@@ -473,13 +501,19 @@ public class MainActivity extends AppCompatActivity {
             public void onInitialized(FlicManager manager) {
                 FlicButton button = manager.completeGrabButton(requestCode, resultCode, data);
                 if (button != null) {
-                    button.registerListenForBroadcast(FlicBroadcastReceiverFlags.UP_OR_DOWN | FlicBroadcastReceiverFlags.REMOVED);
+                    button.registerListenForBroadcast(FlicBroadcastReceiverFlags.CLICK_OR_DOUBLE_CLICK_OR_HOLD | FlicBroadcastReceiverFlags.REMOVED);
                     Toast.makeText(MainActivity.this, "Grabbed a button", Toast.LENGTH_SHORT).show();
+                    grabedFlicButton = true;
                 } else {
                     Toast.makeText(MainActivity.this, "Did not grab any button", Toast.LENGTH_SHORT).show();
+                    grabedFlicButton = false;
                 }
             }
         });
+    }
+
+    public static MainActivity getInstance() {
+        return instance;
     }
 
 

@@ -41,6 +41,13 @@
 
     </PreferenceCategory>
 
+    <PreferenceCategory app:title="@string/flic_header">
+        <SwitchPreferenceCompat
+            app:key="use_flic"
+            app:title="@string/flic_title" />
+    </PreferenceCategory>
+
+
 
 
 </PreferenceScreen>
