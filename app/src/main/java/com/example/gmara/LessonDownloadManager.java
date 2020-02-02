@@ -5,6 +5,7 @@ import android.content.Context;
 import android.content.SharedPreferences;
 import android.net.Uri;
 import android.util.Log;
+import android.widget.Toast;
 
 import androidx.preference.PreferenceManager;
 
@@ -126,15 +127,20 @@ public class LessonDownloadManager {
             JSONArray arrayJ = new JSONArray(response);
             SharedPreferences sp = PreferenceManager.getDefaultSharedPreferences(context);
             String magidName = sp.getString("magid_name","navon");
-
+            Boolean foundLesson = false;
             for (int i = 0; i < arrayJ.length(); i++) {
                 JSONObject obj = arrayJ.getJSONObject(i);
                 String mpType = obj.getString("e");
                 String downloadUrl = obj.getString("k");
                 if (mpType.equals("mp3") && downloadUrl.contains(magidName)) {
                     handleDownload(context, downloadUrl, magidName);
+                    foundLesson = true;
                     break;
                 }
+            }
+
+            if (!foundLesson) {
+                Toast.makeText(context.getApplicationContext(), "Couldn't find a Magid", Toast.LENGTH_LONG).show();
             }
 
         } catch (Exception t) {
@@ -160,6 +166,10 @@ public class LessonDownloadManager {
             DownloadManager downloadManager = (DownloadManager) context.getSystemService(DOWNLOAD_SERVICE);
             MainActivity.downloadID = downloadManager.enqueue(request);// enqueue puts the download request in the queue.
         }
+        else {
+            Toast.makeText(context.getApplicationContext(), "Lesson already exist", Toast.LENGTH_LONG).show();
+        }
+
 
     }
 
