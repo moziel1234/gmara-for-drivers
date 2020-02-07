@@ -24,8 +24,6 @@ import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
-import java.util.concurrent.Callable;
-import java.util.function.Function;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -52,7 +50,7 @@ public class LessonDownloadManager {
                                         if (action.equals("DownloadLastLesson")) {
                                             DownloadLesson(response, context);
                                         } else if (action.equals("populateMagids")){
-                                            PopultateMagids(response);
+                                            PopulateMagids(response);
                                         }
                                     }
                                 }, new Response.ErrorListener() {
@@ -76,7 +74,7 @@ public class LessonDownloadManager {
         queue.add(stringRequest);
     }
 
-    private static void PopultateMagids(String response) {
+    private static void PopulateMagids(String response) {
         List<String> listMagidNames = new ArrayList<String>();
         List<String> listMagidVals = new ArrayList<String>();
 

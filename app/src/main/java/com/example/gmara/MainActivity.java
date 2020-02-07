@@ -19,6 +19,7 @@ import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.ImageButton;
 import android.widget.SeekBar;
@@ -74,7 +75,6 @@ public class MainActivity extends AppCompatActivity {
     private boolean grabedFlicButton;
 
 
-
     public BroadcastReceiver onDownloadComplete = new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, Intent intent) {
@@ -104,6 +104,8 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
+
 
         // Init FLIC
         FlicManager.setAppCredentials(
@@ -223,16 +225,7 @@ public class MainActivity extends AppCompatActivity {
                 if (playingFile != null && playingFile.contains("resource")) { //tfilat haderech
                     lastModifiedFile = lastFileModified();
                     playingFile = lastModifiedFile.toString();
-                    try {
-                        mediaPlayer = new MediaPlayer();
-                        mediaPlayer.setDataSource(playingFile);
-                        mediaPlayer.prepare();
-                        finalTime = mediaPlayer.getDuration();
-                        seekbar.setMax((int) finalTime);
-                    } catch (Exception ex) {
-                        Log.e("Gmara", ex.toString());
-                    }
-
+                    PrepareAudio();
                     PlayAudio(null);
                 }
             }
@@ -261,6 +254,18 @@ public class MainActivity extends AppCompatActivity {
         });
 
         populateFileSpinner();
+    }
+
+    public void PrepareAudio() {
+        try {
+            mediaPlayer = new MediaPlayer();
+            mediaPlayer.setDataSource(playingFile);
+            mediaPlayer.prepare();
+            finalTime = mediaPlayer.getDuration();
+            seekbar.setMax((int) finalTime);
+        } catch (Exception ex) {
+            Log.e("Gmara", ex.toString());
+        }
     }
 
     public  void PressOnPlayPause(ImageButton btnPlayPause) {
@@ -303,7 +308,7 @@ public class MainActivity extends AppCompatActivity {
     private void populateFileSpinner() {
         spinnerFile = (Spinner) findViewById(R.id.spinnerPlayFile);
         List<String> list = new ArrayList<String>();
-        File[] filesList = this.getExternalFilesDir("").listFiles();
+        final File[] filesList = this.getExternalFilesDir("").listFiles();
         for (File file : filesList) {
             list.add(file.getName());
         }
@@ -312,6 +317,21 @@ public class MainActivity extends AppCompatActivity {
                 android.R.layout.simple_spinner_item, list);
         dataAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         spinnerFile.setAdapter(dataAdapter);
+        spinnerFile.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+            public void onItemSelected(AdapterView<?> adapterView, View view, int i, long l) {
+                playingFile = filesList[i].toString();
+                try {
+                    PrepareAudio();
+                } catch (Exception e)  {
+                    Log.e("Gmara", "media Player preperation failed");
+                }
+
+            }
+
+            public void onNothingSelected(AdapterView<?> adapterView) {
+                return;
+            }
+        });
     }
 
     private boolean shouldRunTfilatHaderech() {
@@ -457,6 +477,7 @@ public class MainActivity extends AppCompatActivity {
         getMenuInflater().inflate(R.menu.menu_main, menu);
         return true;
     }
+
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
