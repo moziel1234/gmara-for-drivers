@@ -33,7 +33,9 @@ import androidx.preference.PreferenceManager;
 
 import java.io.FileFilter;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Calendar;
+import java.util.Comparator;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 
@@ -309,6 +311,13 @@ public class MainActivity extends AppCompatActivity {
         spinnerFile = (Spinner) findViewById(R.id.spinnerPlayFile);
         List<String> list = new ArrayList<String>();
         final File[] filesList = this.getExternalFilesDir("").listFiles();
+
+        Arrays.sort(filesList, new Comparator<File>() {
+            public int compare(File f1, File f2) {
+                return -1 * Long.compare(f1.lastModified(), f2.lastModified());
+            }
+        });
+
         for (File file : filesList) {
             list.add(file.getName());
         }
