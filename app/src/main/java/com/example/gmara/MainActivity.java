@@ -173,35 +173,18 @@ public class MainActivity extends AppCompatActivity {
         alarmManager.setRepeating(AlarmManager.RTC_WAKEUP, midnightCalendar.getTimeInMillis(),
                 1000 * 60 * 60 * 24, pendingIntent);
 
+        populateFileSpinner();
 
-        String lastPlayedFile = mPrefs.getString("playedFile", "NoSaved");
-
-
-
-        try {
-            if (!shouldRunTfilatHaderech()) {
-                playingFile = lastModifiedFile.toString();
-                mediaPlayer.setDataSource(playingFile);
-            } else {
-                Uri mediaPath = Uri.parse("android.resource://" + getPackageName() + "/" + R.raw.tfilat_haderech);
-                playingFile = mediaPath.toString();
-                mediaPlayer.setDataSource(getApplicationContext(), mediaPath);
-            }
-
-            mediaPlayer.prepare();
-        } catch (Exception e)  {
-            Log.e("Gmara", "media Player preperation failed");
-        }
-
-        if (lastPlayedFile.equals(playedFile)) {
-            String lastPlayedTime = mPrefs.getString("currentPlayedTime", "0");
-            mediaPlayer.seekTo(Integer.parseInt(lastPlayedTime));
+        // Disable play button in case no files
+        if (spinnerFile.getSelectedItem()==null ) {
+            btnPlayPause.setEnabled(false);
         }
 
         if (savedInstanceState != null) { ;
             doPlay = Boolean.parseBoolean(savedInstanceState.getString("doPlay"));
             oneTimeOnly = 0;
             if (doPlay){
+                PrepareAudio();
                 PlayAudio(btnPlayPause);
             } else {
                 leftTime.setText(savedInstanceState.getString("leftTime"));
@@ -248,24 +231,35 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
-        populateFileSpinner();
 
-        // Disable play button in case no files
-        if (spinnerFile.getSelectedItem()==null ) {
-            btnPlayPause.setEnabled(false);
-        }
     }
 
     public void PrepareAudio() {
+        String lastPlayedFile = mPrefs.getString("playedFile", "NoSaved");
+
         try {
-            mediaPlayer = new MediaPlayer();
-            mediaPlayer.setDataSource(playingFile);
+            if (mediaPlayer == null)
+                mediaPlayer = new MediaPlayer();
+            if (shouldRunTfilatHaderech()) {
+                Uri mediaPath = Uri.parse("android.resource://" + getPackageName() + "/" + R.raw.tfilat_haderech);
+                playingFile = mediaPath.toString();
+                mediaPlayer.setDataSource(getApplicationContext(), mediaPath);
+            }
+            else {
+                mediaPlayer.setDataSource(playingFile);
+            }
             mediaPlayer.prepare();
-            finalTime = mediaPlayer.getDuration();
-            seekbar.setMax((int) finalTime);
-        } catch (Exception ex) {
-            Log.e("Gmara", ex.toString());
+        } catch (Exception e)  {
+            Log.e("Gmara", "media Player preperation failed");
         }
+
+        if (lastPlayedFile.contains(playingFile)) {
+            String lastPlayedTime = mPrefs.getString("currentPlayedTime", "0");
+            mediaPlayer.seekTo(Integer.parseInt(lastPlayedTime));
+        }
+
+        finalTime = mediaPlayer.getDuration();
+        seekbar.setMax((int) finalTime);
     }
 
     public  void PressOnPlayPause(ImageButton btnPlayPause) {
@@ -324,6 +318,10 @@ public class MainActivity extends AppCompatActivity {
                 android.R.layout.simple_spinner_item, list);
         dataAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         spinnerFile.setAdapter(dataAdapter);
+
+        // Here assign the audio file
+        playingFile = filesList[0].toString();
+
         spinnerFile.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             public void onItemSelected(AdapterView<?> adapterView, View view, int i, long l) {
                 playingFile = filesList[i].toString();
@@ -467,12 +465,12 @@ public class MainActivity extends AppCompatActivity {
                 if (currentPlayedTime > 0) {
                     mEditor.putString("playedFile", playedFile).commit();
                 }
+                return;
             }
-        } else {
-            if (currentPlayedTime > 0) {
-                mEditor.putString("currentPlayedTime", "" + currentPlayedTime).commit();
-                mEditor.putString("playedFile", playedFile).commit();
-            }
+        }
+        if (currentPlayedTime > 0) {
+            mEditor.putString("currentPlayedTime", "" + currentPlayedTime).commit();
+            mEditor.putString("playedFile", playingFile).commit();
         }
     }
 
