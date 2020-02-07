@@ -85,6 +85,7 @@ public class MainActivity extends AppCompatActivity {
             //Checking if the received broadcast is for our enqueued download by matching download id
             if (downloadID == id) {
                 populateFileSpinner();
+                btnPlayPause.setEnabled(true);
                 Toast.makeText(MainActivity.this, "Download Completed", Toast.LENGTH_SHORT).show();
             }
         }
@@ -172,14 +173,6 @@ public class MainActivity extends AppCompatActivity {
         alarmManager.setRepeating(AlarmManager.RTC_WAKEUP, midnightCalendar.getTimeInMillis(),
                 1000 * 60 * 60 * 24, pendingIntent);
 
-        // Init player with last file
-        lastModifiedFile = lastFileModified();
-        if (lastModifiedFile != null) {
-            // TextView playLabel = (TextView) findViewById(R.id.spinnerPlayFile);
-            String[] arr = lastModifiedFile.toString().split("/");
-            playedFile = arr[arr.length - 1];
-            // playLabel.setText(playedFile);
-        }
 
         String lastPlayedFile = mPrefs.getString("playedFile", "NoSaved");
 
@@ -256,6 +249,11 @@ public class MainActivity extends AppCompatActivity {
         });
 
         populateFileSpinner();
+
+        // Disable play button in case no files
+        if (spinnerFile.getSelectedItem()==null ) {
+            btnPlayPause.setEnabled(false);
+        }
     }
 
     public void PrepareAudio() {
@@ -334,7 +332,6 @@ public class MainActivity extends AppCompatActivity {
                 } catch (Exception e)  {
                     Log.e("Gmara", "media Player preperation failed");
                 }
-
             }
 
             public void onNothingSelected(AdapterView<?> adapterView) {
