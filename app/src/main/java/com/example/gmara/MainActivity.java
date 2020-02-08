@@ -235,17 +235,26 @@ public class MainActivity extends AppCompatActivity {
     }
 
     public void PrepareAudio() {
+        boolean shouldPlay = false;
         String lastPlayedFile = mPrefs.getString("playedFile", "NoSaved");
 
         try {
             if (mediaPlayer == null)
                 mediaPlayer = new MediaPlayer();
+
             if (shouldRunTfilatHaderech()) {
                 Uri mediaPath = Uri.parse("android.resource://" + getPackageName() + "/" + R.raw.tfilat_haderech);
                 playingFile = mediaPath.toString();
                 mediaPlayer.setDataSource(getApplicationContext(), mediaPath);
             }
             else {
+
+                // in case of swich lesson during play - reset the lesson.
+                if (mediaPlayer.isPlaying()) {
+                    shouldPlay = true;
+
+                }
+                mediaPlayer.reset();
                 mediaPlayer.setDataSource(playingFile);
             }
             mediaPlayer.prepare();
@@ -260,6 +269,11 @@ public class MainActivity extends AppCompatActivity {
 
         finalTime = mediaPlayer.getDuration();
         seekbar.setMax((int) finalTime);
+
+        if (shouldPlay) {
+            PlayAudio(null);
+        }
+
     }
 
     public  void PressOnPlayPause(ImageButton btnPlayPause) {
