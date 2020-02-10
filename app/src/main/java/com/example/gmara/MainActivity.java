@@ -334,7 +334,10 @@ public class MainActivity extends AppCompatActivity {
         spinnerFile.setAdapter(dataAdapter);
 
         // Here assign the audio file
-        playingFile = filesList[0].toString();
+        if (filesList.length > 0)
+            playingFile = filesList[0].toString();
+        else
+            playingFile = "";
 
         spinnerFile.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             public void onItemSelected(AdapterView<?> adapterView, View view, int i, long l) {
